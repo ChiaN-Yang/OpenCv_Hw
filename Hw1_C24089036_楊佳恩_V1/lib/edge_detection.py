@@ -84,8 +84,8 @@ class EdgeDetection():
 
     def grayscale(self, data):
         """ 灰階 """
-        B, G, R = self.split(data)
-        img_gray = B*0.299 + G*0.587 + R*0.114
+        b, g, r = self.split(data)
+        img_gray = b*0.299 + g*0.587 + r*0.114
         img_gray = img_gray.round()
         img_gray = img_gray.astype(np.uint8)
         return img_gray

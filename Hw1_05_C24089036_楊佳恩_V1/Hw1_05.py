@@ -114,7 +114,6 @@ class MainWindow(QtWidgets.QMainWindow):
             device = "cuda"
         else:
             device = "cpu"
-        print(device)
         softmax = nn.Softmax(dim=0)
 
         # Load the most accurate model
@@ -136,22 +135,20 @@ class MainWindow(QtWidgets.QMainWindow):
                 x_batch, dim=0).float(), requires_grad=False)
             p_batch = model(x_batch)
             probs = torch.relu(p_batch[0])
-            print(probs)
             probs = softmax(probs)
-            print(probs)
 
+        plt.figure(figsize=(12, 6))
         plt.subplot(1, 2, 1)
         img = img.swapaxes(0, 1)
         img = img.swapaxes(1, 2)
+        img = img / 2 + 0.5     # unnormalize
         plt.imshow(img)
         plt.axis('off')
-        # plt.legend()
 
         plt.subplot(1, 2, 2)
         plt.bar(self.classes, probs)
         plt.xlabel("Classes")
         plt.ylabel("Probability")
-        # plt.legend()
 
         plt.show()
 
@@ -160,7 +157,6 @@ class MainWindow(QtWidgets.QMainWindow):
             device = "cuda"
         else:
             device = "cpu"
-        print(device)
 
         model = models.vgg16(pretrained=True)
         # Freeze parameters so we don't backprop through them

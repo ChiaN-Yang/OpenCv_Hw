@@ -41,7 +41,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def findExtrinsic(self):
         n = int(self.lineEdit_2.text())
-        self.Q2.findExtrinsic(n)
+        self.Q2.findExtrinsic(n-1)
 
     def findDistortion(self):
         self.Q2.findDistortion()

@@ -3,6 +3,7 @@
 import cv2
 import numpy as np
 import copy
+from scipy.spatial.transform import Rotation as R
 
 
 class CameraCalibration():
@@ -32,7 +33,7 @@ class CameraCalibration():
             imgpoints.append(corners)
 
         # 標定
-        ret, self.mtx, self.dist, rvecs, tvecs = cv2.calibrateCamera(
+        ret, self.mtx, self.dist, self.rvecs, self.tvecs = cv2.calibrateCamera(
             objpoints, imgpoints, gray.shape[::-1], None, None)
 
     def findCorner(self):
@@ -68,24 +69,20 @@ class CameraCalibration():
             print("\nFailed to access the number")
             img = self.images[1]
 
-        objpoints = []
-        imgpoints = []
         objp = np.zeros((self.w*self.h, 3), np.float32)
         objp[:, :2] = np.mgrid[0:self.w, 0:self.h].T.reshape(-1, 2)
 
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        _, corners = cv2.findChessboardCorners(
+
+        ret, corners = cv2.findChessboardCorners(
             gray, (self.w, self.h), None)
-        objpoints.append(objp)
-        imgpoints.append(corners)
 
-        ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(
-            objpoints, imgpoints, gray.shape[::-1], None, None)
-        rvecs = cv2.Rodrigues(rvecs[0])
+        retval, rvec, tvec = cv2.solvePnP(objp, corners, self.mtx, self.dist)
 
+        rvecs = cv2.Rodrigues(rvec)
         etmat = rvecs[0]
-        etmat = np.insert(etmat, 3, values=tvecs[0].reshape(-1), axis=1)
-        print(f'\nExtrinsic(img_{n}):\n{etmat}')
+        etmat = np.insert(etmat, 3, values=tvec.reshape(-1), axis=1)
+        print(f'\nExtrinsic(img_{n+1}):\n{etmat}')
 
     def findDistortion(self):
         print(f'\nDistortion:\n{self.dist}')
@@ -106,5 +103,5 @@ class CameraCalibration():
 
 if __name__ == "__main__":
     cc = CameraCalibration()
-    cc.findIntrinsic()
+    cc.findExtrinsic(0)
     # cc.showResult()
